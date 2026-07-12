@@ -1,0 +1,33 @@
+name: family_ledger
+description: Personal ledger for tracking balances between people.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.6.1
+  get_it: ^8.0.3
+  drift: ^2.26.0
+  sqlite3_flutter_libs: ^0.5.34
+  path_provider: ^2.1.5
+  path: ^1.9.1
+  archive: ^3.6.1
+  file_picker: ^8.1.7
+  crypto: ^3.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  drift_dev: ^2.26.0
+  build_runner: ^2.4.15
+  sqlite3: ^3.3.4
+  path_provider_platform_interface: ^2.1.3
+  plugin_platform_interface: ^2.1.8
+
+flutter:
+  uses-material-design: true
