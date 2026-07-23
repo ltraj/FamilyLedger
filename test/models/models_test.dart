@@ -95,6 +95,32 @@ void main() {
       final restored = SettingsModel.fromJson(original.toJson());
       expect(restored, original);
     });
+
+    test('automatic-backup fields round-trip, clear, and default off', () {
+      final enabled = original.copyWith(
+        autoBackupIntervalDays: 3,
+        autoBackupDirectory: '/storage/backups',
+      );
+      expect(enabled.isAutoBackupEnabled, isTrue);
+      expect(SettingsModel.fromJson(enabled.toJson()), enabled);
+
+      final cleared = enabled.copyWith(
+        clearAutoBackupIntervalDays: true,
+        clearAutoBackupDirectory: true,
+      );
+      expect(cleared.autoBackupIntervalDays, isNull);
+      expect(cleared.autoBackupDirectory, isNull);
+      expect(cleared.isAutoBackupEnabled, isFalse);
+
+      // JSON written before these fields existed parses as OFF.
+      final legacy = SettingsModel.fromJson({
+        'theme': 'system',
+        'currency': 'INR',
+        'backupFrequency': 'never',
+      });
+      expect(legacy.autoBackupIntervalDays, isNull);
+      expect(legacy.autoBackupDirectory, isNull);
+    });
   });
 
   group('BackupModel', () {

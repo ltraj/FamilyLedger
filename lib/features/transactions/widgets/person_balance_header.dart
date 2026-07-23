@@ -3,12 +3,14 @@ import 'package:family_ledger/core/utils/balance_colors.dart';
 import 'package:family_ledger/core/utils/currency_formatter.dart';
 import 'package:family_ledger/core/utils/friendly_date.dart';
 import 'package:family_ledger/features/people/widgets/person_avatar.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/models/person_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Top section of the Transaction screen: avatar, name, a large balance
 /// indicator, transaction count, and last transaction date.
-class PersonBalanceHeader extends StatelessWidget {
+class PersonBalanceHeader extends ConsumerWidget {
   const PersonBalanceHeader({
     super.key,
     required this.person,
@@ -25,8 +27,9 @@ class PersonBalanceHeader extends StatelessWidget {
   bool get _hasTransactions => transactionCount > 0;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currencySymbol = ref.watch(currencySymbolProvider);
     final balanceColor = BalanceColors.forBalance(
       context,
       hasTransactions: _hasTransactions,
@@ -61,7 +64,7 @@ class PersonBalanceHeader extends StatelessWidget {
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
             child: Text(
-              CurrencyFormatter.format(balance),
+              CurrencyFormatter.format(balance, symbol: currencySymbol),
               key: ValueKey(balance),
               style: theme.textTheme.displaySmall?.copyWith(
                 color: balanceColor,

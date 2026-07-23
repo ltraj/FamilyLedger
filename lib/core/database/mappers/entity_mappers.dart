@@ -54,6 +54,8 @@ abstract final class EntityMappers {
       theme: entity.theme,
       currency: entity.currency,
       backupFrequency: entity.backupFrequency,
+      autoBackupIntervalDays: entity.autoBackupIntervalDays,
+      autoBackupDirectory: entity.autoBackupDirectory,
     );
   }
 
@@ -124,6 +126,11 @@ abstract final class EntityMappers {
       theme: Value(model.theme),
       currency: Value(model.currency),
       backupFrequency: Value(model.backupFrequency),
+      // Wrapped in Value even when null: writing null is how "turn
+      // automatic backup off" persists, so Value.absent would silently
+      // make the setting impossible to clear.
+      autoBackupIntervalDays: Value(model.autoBackupIntervalDays),
+      autoBackupDirectory: Value(model.autoBackupDirectory),
     );
   }
 

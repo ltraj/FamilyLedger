@@ -1,19 +1,22 @@
 import 'package:family_ledger/core/utils/currency_formatter.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/projections/dashboard_summary.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Calculated-only figures: no AI, no charts, just facts already present
 /// in [DashboardSummary]. Hides itself entirely if there's nothing to
 /// show (a brand new ledger with no data yet).
-class QuickInsightsSection extends StatelessWidget {
+class QuickInsightsSection extends ConsumerWidget {
   const QuickInsightsSection({super.key, required this.summary});
 
   final DashboardSummary summary;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final insights = _buildInsights();
+    final currencySymbol = ref.watch(currencySymbolProvider);
+    final insights = _buildInsights(currencySymbol);
 
     if (insights.isEmpty) return const SizedBox.shrink();
 
@@ -41,7 +44,7 @@ class QuickInsightsSection extends StatelessWidget {
     );
   }
 
-  List<_Insight> _buildInsights() {
+  List<_Insight> _buildInsights(String currencySymbol) {
     final highestAdvance = summary.highestAdvancePerson;
     final mostOwing = summary.mostOwingPerson;
     final mostActive = summary.mostActivePersonThisMonth;
@@ -54,7 +57,7 @@ class QuickInsightsSection extends StatelessWidget {
           label: 'Highest remaining advance',
           value:
               '${highestAdvance.person.name} · '
-              '${CurrencyFormatter.format(highestAdvance.balance)}',
+              '${CurrencyFormatter.format(highestAdvance.balance, symbol: currencySymbol)}',
           icon: Icons.trending_up,
         ),
       if (mostOwing != null)
@@ -62,7 +65,7 @@ class QuickInsightsSection extends StatelessWidget {
           label: 'Owes you the most',
           value:
               '${mostOwing.person.name} · '
-              '${CurrencyFormatter.format(-mostOwing.balance)}',
+              '${CurrencyFormatter.format(-mostOwing.balance, symbol: currencySymbol)}',
           icon: Icons.trending_down,
         ),
       if (mostActive != null)
@@ -82,7 +85,7 @@ class QuickInsightsSection extends StatelessWidget {
           label: "Largest expense this month",
           value:
               '${largestExpense.person.name} · '
-              '${CurrencyFormatter.format(largestExpense.transaction.amount)}',
+              '${CurrencyFormatter.format(largestExpense.transaction.amount, symbol: currencySymbol)}',
           icon: Icons.receipt_long_outlined,
         ),
     ];

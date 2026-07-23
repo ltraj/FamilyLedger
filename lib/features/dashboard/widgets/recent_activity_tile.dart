@@ -3,15 +3,17 @@ import 'package:family_ledger/core/utils/balance_colors.dart';
 import 'package:family_ledger/core/utils/currency_formatter.dart';
 import 'package:family_ledger/core/utils/relative_date.dart';
 import 'package:family_ledger/features/people/widgets/person_avatar.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/features/transactions/models/transaction_type_label.dart';
 import 'package:family_ledger/projections/transaction_details.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// One entry in the Dashboard's Recent Activity feed: unlike
 /// `TransactionCard` (used on a single person's own Transaction screen),
 /// this shows whose transaction it is, since entries span every person.
 /// Tapping opens that person's Transaction screen.
-class RecentActivityTile extends StatelessWidget {
+class RecentActivityTile extends ConsumerWidget {
   const RecentActivityTile({
     super.key,
     required this.details,
@@ -22,8 +24,9 @@ class RecentActivityTile extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currencySymbol = ref.watch(currencySymbolProvider);
     final transaction = details.transaction;
     final signedAmount = BalanceCalculator.signedAmount(transaction);
 
@@ -71,7 +74,7 @@ class RecentActivityTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    _signedAmountLabel(signedAmount),
+                    _signedAmountLabel(signedAmount, currencySymbol),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: BalanceColors.forBalance(
                         context,
@@ -83,7 +86,7 @@ class RecentActivityTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Bal ${CurrencyFormatter.format(details.runningBalanceAfter)}',
+                    'Bal ${CurrencyFormatter.format(details.runningBalanceAfter, symbol: currencySymbol)}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -97,8 +100,8 @@ class RecentActivityTile extends StatelessWidget {
     );
   }
 
-  String _signedAmountLabel(double signedAmount) {
-    final formatted = CurrencyFormatter.format(signedAmount);
+  String _signedAmountLabel(double signedAmount, String currencySymbol) {
+    final formatted = CurrencyFormatter.format(signedAmount, symbol: currencySymbol);
     return signedAmount >= 0 ? '+$formatted' : formatted;
   }
 }

@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 
 /// Material 3 theme configuration for the application.
 ///
-/// UI screens are not implemented in this phase; this provides the
-/// theme foundation for future feature development.
+/// [resolveThemeMode] is consumed by `main.dart`'s `FamilyLedgerApp`,
+/// which watches `settingsViewModelProvider` to re-theme the app
+/// immediately whenever `SettingsModel.theme` changes.
 abstract final class AppTheme {
   static const _seedColor = 0xFF2E7D32;
 

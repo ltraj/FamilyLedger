@@ -70,6 +70,15 @@ abstract final class ImportConverters {
       backupFrequency: BackupFrequency.values.byName(
         json['automaticBackupFrequency'] as String,
       ),
+      // The export bundle deliberately does not carry the automatic-backup
+      // interval or folder (the bundle format is unchanged since v1, and
+      // a backup may be restored on a different device where the old
+      // folder path would be meaningless or, worse, silently wrong).
+      // `as int?`/`as String?` tolerate the fields being absent, so every
+      // existing backup imports unchanged, and a restore always lands
+      // with automatic backup OFF until the user re-enables it.
+      autoBackupIntervalDays: json['autoBackupIntervalDays'] as int?,
+      autoBackupDirectory: json['autoBackupDirectory'] as String?,
     );
   }
 }

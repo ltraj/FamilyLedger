@@ -1,8 +1,10 @@
 import 'package:family_ledger/core/utils/currency_formatter.dart';
 import 'package:family_ledger/core/utils/relative_date.dart';
 import 'package:family_ledger/features/reports/utils/report_engine.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/projections/reports/category_report.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Section 3: per-category figures with an Amount/Frequency/A–Z sort
 /// selector. The selector re-sorts via `ReportEngine.sortCategoryReports`
@@ -63,14 +65,15 @@ class _CategoryAnalysisSectionState extends State<CategoryAnalysisSection> {
   }
 }
 
-class _CategoryReportTile extends StatelessWidget {
+class _CategoryReportTile extends ConsumerWidget {
   const _CategoryReportTile({required this.report});
 
   final CategoryReport report;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currencySymbol = ref.watch(currencySymbolProvider);
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -95,7 +98,7 @@ class _CategoryReportTile extends StatelessWidget {
                 ),
               ),
               Text(
-                CurrencyFormatter.format(report.total),
+                CurrencyFormatter.format(report.total, symbol: currencySymbol),
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -105,9 +108,9 @@ class _CategoryReportTile extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '${report.transactionCount} transactions · '
-            'avg ${CurrencyFormatter.format(report.average)} · '
-            'largest ${CurrencyFormatter.format(report.largest)} · '
-            'smallest ${CurrencyFormatter.format(report.smallest)} · '
+            'avg ${CurrencyFormatter.format(report.average, symbol: currencySymbol)} · '
+            'largest ${CurrencyFormatter.format(report.largest, symbol: currencySymbol)} · '
+            'smallest ${CurrencyFormatter.format(report.smallest, symbol: currencySymbol)} · '
             'last used ${RelativeDate.format(report.mostRecentDate)}',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,

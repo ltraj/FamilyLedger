@@ -1,3 +1,4 @@
+import 'package:family_ledger/core/constants/app_constants.dart';
 import 'package:family_ledger/core/constants/enums.dart';
 import 'package:family_ledger/core/utils/balance_calculator.dart';
 import 'package:family_ledger/core/utils/currency_formatter.dart';
@@ -53,6 +54,7 @@ abstract final class ReportEngine {
     required List<CategoryModel> categories,
     required ReportFilter filter,
     DateTime? now,
+    String currencySymbol = AppConstants.defaultCurrencySymbol,
   }) {
     final currentTime = now ?? DateTime.now();
 
@@ -124,6 +126,7 @@ abstract final class ReportEngine {
       categoryReports: categoryReports,
       monthlyReports: monthlyReports,
       topLists: topLists,
+      currencySymbol: currencySymbol,
     );
 
     return ReportsOverview(
@@ -649,6 +652,7 @@ abstract final class ReportEngine {
     required List<CategoryReport> categoryReports,
     required List<MonthlyReport> monthlyReports,
     required TopListsReport topLists,
+    required String currencySymbol,
   }) {
     final insights = <ReportInsight>[];
     final periodLabel = _periodLabel(filter.datePreset);
@@ -666,7 +670,7 @@ abstract final class ReportEngine {
           kind: ReportInsightKind.spending,
           message:
               'Most spending is on ${top.category!.name} '
-              '(${CurrencyFormatter.format(top.expenseTotal)}).',
+              '(${CurrencyFormatter.format(top.expenseTotal, symbol: currencySymbol)}).',
         ),
       );
     }
@@ -699,7 +703,7 @@ abstract final class ReportEngine {
         ReportInsight(
           kind: ReportInsightKind.ownPocket,
           message:
-              '${CurrencyFormatter.format(ledger.ownPocketExpenses)} of '
+              '${CurrencyFormatter.format(ledger.ownPocketExpenses, symbol: currencySymbol)} of '
               'expenses came from your own pocket, beyond advances.',
         ),
       );
@@ -712,7 +716,7 @@ abstract final class ReportEngine {
           kind: ReportInsightKind.spending,
           message:
               'Highest spending month: ${_monthLabel(peak.month)} '
-              '(${CurrencyFormatter.format(peak.expenses)}).',
+              '(${CurrencyFormatter.format(peak.expenses, symbol: currencySymbol)}).',
         ),
       );
     }
@@ -723,7 +727,7 @@ abstract final class ReportEngine {
           kind: ReportInsightKind.balance,
           message:
               'You are currently holding '
-              '${CurrencyFormatter.format(ledger.currentBalance)} in '
+              '${CurrencyFormatter.format(ledger.currentBalance, symbol: currencySymbol)} in '
               'advances.',
         ),
       );
@@ -733,7 +737,7 @@ abstract final class ReportEngine {
           kind: ReportInsightKind.balance,
           message:
               'You are currently owed '
-              '${CurrencyFormatter.format(-ledger.currentBalance)} overall.',
+              '${CurrencyFormatter.format(-ledger.currentBalance, symbol: currencySymbol)} overall.',
         ),
       );
     }

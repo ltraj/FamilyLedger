@@ -1,7 +1,9 @@
 import 'package:family_ledger/core/utils/balance_colors.dart';
 import 'package:family_ledger/core/utils/currency_formatter.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/projections/reports/monthly_report.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Section 4: month-by-month movements with a cumulative running balance.
 /// Oldest month first so the running balance reads top to bottom.
@@ -35,7 +37,7 @@ class MonthlyAnalysisSection extends StatelessWidget {
   }
 }
 
-class _MonthTile extends StatelessWidget {
+class _MonthTile extends ConsumerWidget {
   const _MonthTile({required this.report});
 
   final MonthlyReport report;
@@ -46,8 +48,9 @@ class _MonthTile extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currencySymbol = ref.watch(currencySymbolProvider);
     final netColor = BalanceColors.forBalance(
       context,
       hasTransactions: true,
@@ -74,7 +77,7 @@ class _MonthTile extends StatelessWidget {
               ),
               Text(
                 '${report.netChange >= 0 ? '+' : ''}'
-                '${CurrencyFormatter.format(report.netChange)}',
+                '${CurrencyFormatter.format(report.netChange, symbol: currencySymbol)}',
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: netColor,
@@ -89,19 +92,31 @@ class _MonthTile extends StatelessWidget {
             children: [
               _MonthFigure(
                 label: 'Advances',
-                value: CurrencyFormatter.format(report.advances),
+                value: CurrencyFormatter.format(
+                  report.advances,
+                  symbol: currencySymbol,
+                ),
               ),
               _MonthFigure(
                 label: 'Expenses',
-                value: CurrencyFormatter.format(report.expenses),
+                value: CurrencyFormatter.format(
+                  report.expenses,
+                  symbol: currencySymbol,
+                ),
               ),
               _MonthFigure(
                 label: 'Returned',
-                value: CurrencyFormatter.format(report.moneyReturned),
+                value: CurrencyFormatter.format(
+                  report.moneyReturned,
+                  symbol: currencySymbol,
+                ),
               ),
               _MonthFigure(
                 label: 'Running balance',
-                value: CurrencyFormatter.format(report.runningBalance),
+                value: CurrencyFormatter.format(
+                  report.runningBalance,
+                  symbol: currencySymbol,
+                ),
               ),
             ],
           ),

@@ -1,19 +1,22 @@
 import 'package:family_ledger/core/utils/currency_formatter.dart';
 import 'package:family_ledger/features/people/widgets/person_avatar.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/projections/attention_item.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// One card in the Dashboard's Attention Center: who needs action, and
 /// why. Tapping opens their Transaction screen.
-class AttentionCard extends StatelessWidget {
+class AttentionCard extends ConsumerWidget {
   const AttentionCard({super.key, required this.item, required this.onTap});
 
   final AttentionItem item;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currencySymbol = ref.watch(currencySymbolProvider);
     final summary = item.personSummary;
 
     return Card(
@@ -41,7 +44,10 @@ class AttentionCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(_detailFor(item), style: theme.textTheme.bodySmall),
+                    Text(
+                      _detailFor(item, currencySymbol),
+                      style: theme.textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ),
@@ -66,13 +72,13 @@ class AttentionCard extends StatelessWidget {
     };
   }
 
-  String _detailFor(AttentionItem item) {
+  String _detailFor(AttentionItem item, String currencySymbol) {
     final balance = item.personSummary.balance;
     return switch (item.reason) {
       AttentionReason.negativeBalance =>
-        'Owes ${CurrencyFormatter.format(-balance)}',
+        'Owes ${CurrencyFormatter.format(-balance, symbol: currencySymbol)}',
       AttentionReason.lowRemainingAdvance =>
-        'Only ${CurrencyFormatter.format(balance)} advance remaining',
+        'Only ${CurrencyFormatter.format(balance, symbol: currencySymbol)} advance remaining',
       AttentionReason.temporaryPersonPending =>
         'Temporary contact with an open balance',
       // Prepared, not produced yet — see AttentionReason's doc comment.

@@ -3,8 +3,10 @@ import 'package:family_ledger/core/utils/currency_formatter.dart';
 import 'package:family_ledger/core/utils/friendly_date.dart';
 import 'package:family_ledger/features/people/widgets/person_avatar.dart';
 import 'package:family_ledger/features/reports/screens/person_report_screen.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/projections/reports/person_report.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Section 2: one expandable card per person. Tapping the header opens
 /// the full [PersonReportScreen]; the inline grid shows the filtered
@@ -34,14 +36,15 @@ class PersonAnalysisSection extends StatelessWidget {
   }
 }
 
-class _PersonReportCard extends StatelessWidget {
+class _PersonReportCard extends ConsumerWidget {
   const _PersonReportCard({required this.report});
 
   final PersonReport report;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currencySymbol = ref.watch(currencySymbolProvider);
 
     return Card(
       margin: EdgeInsets.zero,
@@ -89,7 +92,10 @@ class _PersonReportCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    CurrencyFormatter.format(report.currentBalance),
+                    CurrencyFormatter.format(
+                      report.currentBalance,
+                      symbol: currencySymbol,
+                    ),
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: BalanceColors.forBalance(
@@ -108,29 +114,47 @@ class _PersonReportCard extends StatelessWidget {
                 children: [
                   _MiniStat(
                     label: 'Advance',
-                    value: CurrencyFormatter.format(report.advanceReceived),
+                    value: CurrencyFormatter.format(
+                      report.advanceReceived,
+                      symbol: currencySymbol,
+                    ),
                   ),
                   _MiniStat(
                     label: 'Expenses',
-                    value: CurrencyFormatter.format(report.expenses),
+                    value: CurrencyFormatter.format(
+                      report.expenses,
+                      symbol: currencySymbol,
+                    ),
                   ),
                   _MiniStat(
                     label: 'Returned',
-                    value: CurrencyFormatter.format(report.moneyReturned),
+                    value: CurrencyFormatter.format(
+                      report.moneyReturned,
+                      symbol: currencySymbol,
+                    ),
                   ),
                   _MiniStat(
                     label: 'Avg / txn',
-                    value: CurrencyFormatter.format(report.averageTransaction),
+                    value: CurrencyFormatter.format(
+                      report.averageTransaction,
+                      symbol: currencySymbol,
+                    ),
                   ),
                   if (report.largestExpense != null)
                     _MiniStat(
                       label: 'Largest expense',
-                      value: CurrencyFormatter.format(report.largestExpense!),
+                      value: CurrencyFormatter.format(
+                        report.largestExpense!,
+                        symbol: currencySymbol,
+                      ),
                     ),
                   if (report.largestAdvance != null)
                     _MiniStat(
                       label: 'Largest advance',
-                      value: CurrencyFormatter.format(report.largestAdvance!),
+                      value: CurrencyFormatter.format(
+                        report.largestAdvance!,
+                        symbol: currencySymbol,
+                      ),
                     ),
                 ],
               ),

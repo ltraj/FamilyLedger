@@ -1,3 +1,4 @@
+import 'package:family_ledger/core/constants/app_constants.dart';
 import 'package:family_ledger/core/constants/enums.dart';
 import 'package:family_ledger/core/database/app_database.dart';
 import 'package:family_ledger/models/backup_model.dart';
@@ -420,6 +421,34 @@ void main() {
       expect(settings.currency, 'USD');
       expect(settings.backupFrequency, BackupFrequency.weekly);
     });
+
+    test('automatic-backup settings persist and can be cleared', () async {
+      final seeded = await repos.settings.getSettings();
+      expect(seeded.autoBackupIntervalDays, isNull);
+      expect(seeded.autoBackupDirectory, isNull);
+
+      await repos.settings.update(
+        seeded.copyWith(
+          autoBackupIntervalDays: 3,
+          autoBackupDirectory: '/storage/backups',
+        ),
+      );
+      final enabled = await repos.settings.getSettings();
+      expect(enabled.autoBackupIntervalDays, 3);
+      expect(enabled.autoBackupDirectory, '/storage/backups');
+
+      // Clearing must persist null (turning the feature off), not
+      // silently keep the old values.
+      await repos.settings.update(
+        enabled.copyWith(
+          clearAutoBackupIntervalDays: true,
+          clearAutoBackupDirectory: true,
+        ),
+      );
+      final disabled = await repos.settings.getSettings();
+      expect(disabled.autoBackupIntervalDays, isNull);
+      expect(disabled.autoBackupDirectory, isNull);
+    });
   });
 
   group('BackupRepository', () {
@@ -462,7 +491,7 @@ void main() {
     test('getAppInfo returns the seeded row', () async {
       final appInfo = await repos.appInfo.getAppInfo();
 
-      expect(appInfo.databaseVersion, 6);
+      expect(appInfo.databaseVersion, AppConstants.databaseSchemaVersion);
       expect(appInfo.appVersion, isNotEmpty);
       expect(appInfo.installationId, hasLength(36));
       expect(appInfo.lastBackup, isNull);

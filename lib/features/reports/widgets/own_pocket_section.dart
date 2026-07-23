@@ -1,13 +1,15 @@
 import 'package:family_ledger/core/utils/balance_colors.dart';
 import 'package:family_ledger/core/utils/currency_formatter.dart';
 import 'package:family_ledger/features/reports/widgets/report_stat_row.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/projections/reports/own_pocket_report.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Section 6: where the user's own money went — overall, by month, by
 /// person, and by category. Hidden behind a friendly all-clear message
 /// when nothing was ever paid out of pocket.
-class OwnPocketSection extends StatelessWidget {
+class OwnPocketSection extends ConsumerWidget {
   const OwnPocketSection({super.key, required this.report});
 
   final OwnPocketReport report;
@@ -18,8 +20,9 @@ class OwnPocketSection extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currencySymbol = ref.watch(currencySymbolProvider);
 
     if (report.isEmpty) {
       return Row(
@@ -46,7 +49,7 @@ class OwnPocketSection extends StatelessWidget {
       children: [
         ReportStatRow(
           label: 'Total from your own pocket',
-          value: CurrencyFormatter.format(report.total),
+          value: CurrencyFormatter.format(report.total, symbol: currencySymbol),
           emphasized: true,
           valueColor: BalanceColors.negative,
         ),
@@ -55,7 +58,10 @@ class OwnPocketSection extends StatelessWidget {
           for (final point in report.monthly)
             ReportStatRow(
               label: '${_months[point.month.month - 1]} ${point.month.year}',
-              value: CurrencyFormatter.format(point.value),
+              value: CurrencyFormatter.format(
+                point.value,
+                symbol: currencySymbol,
+              ),
             ),
         ],
         if (report.perPerson.isNotEmpty) ...[
@@ -63,7 +69,10 @@ class OwnPocketSection extends StatelessWidget {
           for (final entry in report.perPerson)
             ReportStatRow(
               label: entry.person.name,
-              value: CurrencyFormatter.format(entry.amount),
+              value: CurrencyFormatter.format(
+                entry.amount,
+                symbol: currencySymbol,
+              ),
             ),
         ],
         if (report.perCategory.isNotEmpty) ...[
@@ -71,7 +80,10 @@ class OwnPocketSection extends StatelessWidget {
           for (final entry in report.perCategory)
             ReportStatRow(
               label: entry.category?.name ?? 'No category',
-              value: CurrencyFormatter.format(entry.amount),
+              value: CurrencyFormatter.format(
+                entry.amount,
+                symbol: currencySymbol,
+              ),
             ),
         ],
       ],

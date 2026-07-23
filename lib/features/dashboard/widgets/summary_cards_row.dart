@@ -2,6 +2,7 @@ import 'package:family_ledger/core/utils/balance_colors.dart';
 import 'package:family_ledger/core/utils/currency_formatter.dart';
 import 'package:family_ledger/features/dashboard/providers/dashboard_view_model.dart';
 import 'package:family_ledger/features/dashboard/widgets/summary_card.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -41,6 +42,8 @@ class SummaryCardsRow extends ConsumerWidget {
 
     if (figures == null) return const SizedBox.shrink();
 
+    final currencySymbol = ref.watch(currencySymbolProvider);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final columns = switch (constraints.maxWidth) {
@@ -59,19 +62,28 @@ class SummaryCardsRow extends ConsumerWidget {
           children: [
             SummaryCard(
               label: 'Advance Held',
-              value: CurrencyFormatter.format(figures.advanceHeld),
+              value: CurrencyFormatter.format(
+                figures.advanceHeld,
+                symbol: currencySymbol,
+              ),
               icon: Icons.savings_outlined,
               valueColor: BalanceColors.positive,
             ),
             SummaryCard(
               label: 'People Owe Me',
-              value: CurrencyFormatter.format(figures.owedToMe),
+              value: CurrencyFormatter.format(
+                figures.owedToMe,
+                symbol: currencySymbol,
+              ),
               icon: Icons.request_quote_outlined,
               valueColor: BalanceColors.negative,
             ),
             SummaryCard(
               label: 'Net Position',
-              value: CurrencyFormatter.format(figures.netPosition),
+              value: CurrencyFormatter.format(
+                figures.netPosition,
+                symbol: currencySymbol,
+              ),
               icon: Icons.account_balance_outlined,
               valueColor: figures.netPosition >= 0
                   ? BalanceColors.positive
@@ -84,7 +96,10 @@ class SummaryCardsRow extends ConsumerWidget {
             ),
             SummaryCard(
               label: "This Month's Expenses",
-              value: CurrencyFormatter.format(figures.thisMonthExpenses),
+              value: CurrencyFormatter.format(
+                figures.thisMonthExpenses,
+                symbol: currencySymbol,
+              ),
               icon: Icons.trending_down_outlined,
               valueColor: BalanceColors.negative,
             ),

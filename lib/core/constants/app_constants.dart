@@ -13,7 +13,7 @@ abstract final class AppConstants {
   static const String databaseName = 'family_ledger.db';
 
   /// Schema version for Drift migrations.
-  static const int databaseSchemaVersion = 6;
+  static const int databaseSchemaVersion = 7;
 
   /// Semantic version of the app, kept in sync with pubspec.yaml.
   static const String appVersion = '1.0.0+1';

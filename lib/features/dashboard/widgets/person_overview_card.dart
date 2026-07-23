@@ -2,14 +2,16 @@ import 'package:family_ledger/core/utils/balance_colors.dart';
 import 'package:family_ledger/core/utils/currency_formatter.dart';
 import 'package:family_ledger/core/utils/friendly_date.dart';
 import 'package:family_ledger/features/people/widgets/person_avatar.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/projections/person_summary.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// A person's at-a-glance card in the Dashboard's People Overview: avatar,
 /// name, balance, and last activity — read-only (no management actions;
 /// those live on the People screen's `PersonCard`). Tapping opens their
 /// Transaction screen.
-class PersonOverviewCard extends StatelessWidget {
+class PersonOverviewCard extends ConsumerWidget {
   const PersonOverviewCard({
     super.key,
     required this.summary,
@@ -20,8 +22,9 @@ class PersonOverviewCard extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currencySymbol = ref.watch(currencySymbolProvider);
     final balanceColor = BalanceColors.forBalance(
       context,
       hasTransactions: summary.hasTransactions,
@@ -68,7 +71,10 @@ class PersonOverviewCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                CurrencyFormatter.format(summary.balance),
+                CurrencyFormatter.format(
+                  summary.balance,
+                  symbol: currencySymbol,
+                ),
                 style: theme.textTheme.titleSmall?.copyWith(
                   color: balanceColor,
                   fontWeight: FontWeight.w700,

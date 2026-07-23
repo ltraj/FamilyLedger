@@ -3,15 +3,17 @@ import 'package:family_ledger/core/utils/balance_calculator.dart';
 import 'package:family_ledger/core/utils/balance_colors.dart';
 import 'package:family_ledger/core/utils/currency_formatter.dart';
 import 'package:family_ledger/core/utils/friendly_date.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/features/transactions/models/transaction_type_label.dart';
 import 'package:family_ledger/models/category_model.dart';
 import 'package:family_ledger/projections/transaction_details.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// A single transaction's compact card in the timeline: type, category,
 /// signed amount, running balance, remark, date/time, and an attachment
 /// indicator for when attachments are supported.
-class TransactionCard extends StatelessWidget {
+class TransactionCard extends ConsumerWidget {
   const TransactionCard({
     super.key,
     required this.details,
@@ -24,8 +26,9 @@ class TransactionCard extends StatelessWidget {
   final VoidCallback onDelete;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currencySymbol = ref.watch(currencySymbolProvider);
     final transaction = details.transaction;
     final signedAmount = BalanceCalculator.signedAmount(transaction);
     final remark = transaction.remark;
@@ -84,7 +87,7 @@ class TransactionCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _signedAmountLabel(signedAmount),
+                            _signedAmountLabel(signedAmount, currencySymbol),
                             style: theme.textTheme.titleLarge?.copyWith(
                               color: BalanceColors.forBalance(
                                 context,
@@ -110,7 +113,7 @@ class TransactionCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          'Balance ${CurrencyFormatter.format(details.runningBalanceAfter)}',
+                          'Balance ${CurrencyFormatter.format(details.runningBalanceAfter, symbol: currencySymbol)}',
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
@@ -134,8 +137,8 @@ class TransactionCard extends StatelessWidget {
     );
   }
 
-  String _signedAmountLabel(double signedAmount) {
-    final formatted = CurrencyFormatter.format(signedAmount);
+  String _signedAmountLabel(double signedAmount, String currencySymbol) {
+    final formatted = CurrencyFormatter.format(signedAmount, symbol: currencySymbol);
     return signedAmount >= 0 ? '+$formatted' : formatted;
   }
 

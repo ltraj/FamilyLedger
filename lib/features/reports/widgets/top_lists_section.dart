@@ -1,12 +1,14 @@
 import 'package:family_ledger/core/utils/currency_formatter.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/projections/reports/top_lists_report.dart';
 import 'package:family_ledger/projections/transaction_details.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Section 5: the extremes of the filtered period. Rows whose record
 /// doesn't exist in the data are omitted entirely rather than rendered
 /// with placeholders.
-class TopListsSection extends StatelessWidget {
+class TopListsSection extends ConsumerWidget {
   const TopListsSection({super.key, required this.report});
 
   final TopListsReport report;
@@ -17,14 +19,15 @@ class TopListsSection extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currencySymbol = ref.watch(currencySymbolProvider);
 
     String transactionLine(TransactionDetails details) {
       final category = details.category?.name;
       return '${details.person.name}'
           '${category == null ? '' : ' · $category'} · '
-          '${CurrencyFormatter.format(details.transaction.amount.abs())}';
+          '${CurrencyFormatter.format(details.transaction.amount.abs(), symbol: currencySymbol)}';
     }
 
     final rows = <Widget>[
@@ -67,7 +70,7 @@ class TopListsSection extends StatelessWidget {
           label: 'Largest Monthly Expense',
           value:
               '${_months[month.month.month - 1]} ${month.month.year} · '
-              '${CurrencyFormatter.format(month.expenses)}',
+              '${CurrencyFormatter.format(month.expenses, symbol: currencySymbol)}',
         ),
     ];
 

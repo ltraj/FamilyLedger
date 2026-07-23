@@ -7,6 +7,7 @@ import 'package:family_ledger/features/backup/providers/backup_info_state.dart';
 import 'package:family_ledger/features/backup/providers/backup_view_model.dart';
 import 'package:family_ledger/features/backup/utils/file_size_formatter.dart';
 import 'package:family_ledger/features/people/providers/people_view_model.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/providers/repository_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -98,6 +99,10 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       // leave the People tab stale.
       ref.invalidate(categoriesListProvider);
       ref.invalidate(peopleViewModelProvider);
+      // A restored backup can carry a different theme/currency — without
+      // this, the running app would keep showing the pre-restore Settings
+      // until something else happened to rebuild it.
+      ref.invalidate(settingsViewModelProvider);
 
       if (!mounted) return;
       _showMessage(

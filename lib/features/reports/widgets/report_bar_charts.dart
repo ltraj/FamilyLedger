@@ -1,6 +1,8 @@
 import 'package:family_ledger/core/utils/currency_formatter.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/projections/reports/report_breakdowns.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Plain-widget charts for Section 7 and the person detail screen — no
 /// chart package, just proportional boxes, so there's nothing to theme
@@ -80,16 +82,18 @@ class MonthlyBarChart extends StatelessWidget {
 }
 
 /// Horizontal proportional bars, one per category, largest first.
-class CategoryBarList extends StatelessWidget {
+class CategoryBarList extends ConsumerWidget {
   const CategoryBarList({super.key, required this.items, this.maxItems = 8});
 
   final List<CategoryAmount> items;
   final int maxItems;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     if (items.isEmpty) return const SizedBox.shrink();
+
+    final currencySymbol = ref.watch(currencySymbolProvider);
 
     final shown = items.take(maxItems).toList();
     final max = shown.first.amount;
@@ -115,7 +119,10 @@ class CategoryBarList extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      CurrencyFormatter.format(item.amount),
+                      CurrencyFormatter.format(
+                        item.amount,
+                        symbol: currencySymbol,
+                      ),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),

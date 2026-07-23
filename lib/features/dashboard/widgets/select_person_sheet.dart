@@ -2,6 +2,7 @@ import 'package:family_ledger/core/constants/enums.dart';
 import 'package:family_ledger/core/utils/currency_formatter.dart';
 import 'package:family_ledger/features/people/providers/people_view_model.dart';
 import 'package:family_ledger/features/people/widgets/person_avatar.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/features/transactions/widgets/add_edit_transaction_sheet.dart';
 import 'package:family_ledger/projections/person_summary.dart';
 import 'package:flutter/material.dart';
@@ -42,14 +43,15 @@ Future<void> showSelectPersonThenAddTransaction(
   await AddEditTransactionSheet.show(context, personId: selectedPersonId);
 }
 
-class _SelectPersonSheet extends StatelessWidget {
+class _SelectPersonSheet extends ConsumerWidget {
   const _SelectPersonSheet({required this.people});
 
   final List<PersonSummary> people;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currencySymbol = ref.watch(currencySymbolProvider);
 
     return SafeArea(
       child: Column(
@@ -71,7 +73,12 @@ class _SelectPersonSheet extends StatelessWidget {
                 return ListTile(
                   leading: PersonAvatar(person: summary.person, radius: 18),
                   title: Text(summary.person.name),
-                  subtitle: Text(CurrencyFormatter.format(summary.balance)),
+                  subtitle: Text(
+                    CurrencyFormatter.format(
+                      summary.balance,
+                      symbol: currencySymbol,
+                    ),
+                  ),
                   onTap: () => Navigator.of(context).pop(summary.person.id),
                 );
               },

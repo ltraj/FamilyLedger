@@ -1,4 +1,6 @@
+import 'package:family_ledger/backup/services/auto_backup_service.dart';
 import 'package:family_ledger/backup/services/backup_service.dart';
+import 'package:family_ledger/backup/services/impl/auto_backup_service_impl.dart';
 import 'package:family_ledger/backup/services/impl/backup_service_impl.dart';
 import 'package:family_ledger/backup/services/impl/import_validator_impl.dart';
 import 'package:family_ledger/backup/services/impl/restore_service_impl.dart';
@@ -82,6 +84,14 @@ Future<void> setupServiceLocator() async {
       zipArchiver: sl<ZipArchiver>(),
       backupRepository: sl<BackupRepository>(),
       appInfoRepository: sl<AppInfoRepository>(),
+    ),
+  );
+
+  sl.registerLazySingleton<AutoBackupService>(
+    () => AutoBackupServiceImpl(
+      settingsRepository: sl<SettingsRepository>(),
+      appInfoRepository: sl<AppInfoRepository>(),
+      backupService: sl<BackupService>(),
     ),
   );
 

@@ -5,6 +5,7 @@ import 'package:family_ledger/features/people/widgets/person_avatar.dart';
 import 'package:family_ledger/features/reports/providers/reports_view_model.dart';
 import 'package:family_ledger/features/reports/widgets/report_bar_charts.dart';
 import 'package:family_ledger/features/reports/widgets/report_stat_row.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/features/transactions/screens/transaction_screen.dart';
 import 'package:family_ledger/models/person_model.dart';
 import 'package:family_ledger/projections/reports/person_report_detail.dart';
@@ -60,15 +61,16 @@ class PersonReportScreen extends ConsumerWidget {
   }
 }
 
-class _PersonReportBody extends StatelessWidget {
+class _PersonReportBody extends ConsumerWidget {
   const _PersonReportBody({required this.person, required this.detail});
 
   final PersonModel person;
   final PersonReportDetail detail;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currencySymbol = ref.watch(currencySymbolProvider);
 
     void openTransactions() {
       Navigator.of(context).push(
@@ -112,7 +114,10 @@ class _PersonReportBody extends StatelessWidget {
             children: [
               ReportStatRow(
                 label: 'Current Balance',
-                value: CurrencyFormatter.format(detail.currentBalance),
+                value: CurrencyFormatter.format(
+                  detail.currentBalance,
+                  symbol: currencySymbol,
+                ),
                 emphasized: true,
                 valueColor: BalanceColors.forBalance(
                   context,
@@ -122,11 +127,17 @@ class _PersonReportBody extends StatelessWidget {
               ),
               ReportStatRow(
                 label: 'Total Expenses',
-                value: CurrencyFormatter.format(detail.totalExpenses),
+                value: CurrencyFormatter.format(
+                  detail.totalExpenses,
+                  symbol: currencySymbol,
+                ),
               ),
               ReportStatRow(
                 label: 'Average Monthly Expense',
-                value: CurrencyFormatter.format(detail.averageMonthlyExpense),
+                value: CurrencyFormatter.format(
+                  detail.averageMonthlyExpense,
+                  symbol: currencySymbol,
+                ),
               ),
             ],
           ),

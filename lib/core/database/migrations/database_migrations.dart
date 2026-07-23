@@ -95,6 +95,25 @@ abstract final class DatabaseMigrations {
         await migrator.createIndex(database.idxTransactionsCategoryId);
         await migrator.createIndex(database.idxTransactionsDate);
         return;
+      case 7:
+        // Adds automatic-backup configuration: an "every N days" interval
+        // and the once-picked destination folder. The old backupFrequency
+        // enum column stays untouched (see settings_table.dart for why) —
+        // it can't express "every 3 days", so an integer day-count
+        // supersedes it. Both new columns are nullable with null meaning
+        // "off"/"not chosen", so plain ADD COLUMNs with no backfill give
+        // every existing installation the safe default: automatic backup
+        // stays off until the user explicitly enables it. No data is
+        // touched.
+        await migrator.addColumn(
+          database.settings,
+          database.settings.autoBackupIntervalDays,
+        );
+        await migrator.addColumn(
+          database.settings,
+          database.settings.autoBackupDirectory,
+        );
+        return;
       default:
         throw StateError(
           'No migration defined for schema version $version. '

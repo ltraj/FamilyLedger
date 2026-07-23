@@ -1,4 +1,5 @@
 import 'package:family_ledger/features/shared/widgets/empty_state_view.dart';
+import 'package:family_ledger/features/statement/screens/statement_screen.dart';
 import 'package:family_ledger/features/transactions/providers/filtered_transactions_provider.dart';
 import 'package:family_ledger/features/transactions/providers/transaction_query_controller.dart';
 import 'package:family_ledger/features/transactions/providers/transactions_view_model.dart';
@@ -80,6 +81,15 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
             icon: const Icon(Icons.filter_list),
             tooltip: 'Sort & filter',
             onPressed: () => showTransactionSortFilterSheet(context, _personId),
+          ),
+          IconButton(
+            icon: const Icon(Icons.summarize_outlined),
+            tooltip: 'Statement',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => StatementScreen(person: widget.person),
+              ),
+            ),
           ),
         ],
       ),

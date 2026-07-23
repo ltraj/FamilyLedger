@@ -3,15 +3,17 @@ import 'package:family_ledger/core/utils/balance_colors.dart';
 import 'package:family_ledger/core/utils/currency_formatter.dart';
 import 'package:family_ledger/core/utils/friendly_date.dart';
 import 'package:family_ledger/features/people/widgets/person_avatar.dart';
+import 'package:family_ledger/features/settings/providers/settings_view_model.dart';
 import 'package:family_ledger/projections/person_summary.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum _PersonCardAction { edit, regenerateAvatar, archive, restore, delete }
 
 /// A single person's card on the People screen: avatar, name, type,
 /// balance, and quick stats, with an overflow menu for edit/archive/
 /// restore/delete actions.
-class PersonCard extends StatelessWidget {
+class PersonCard extends ConsumerWidget {
   const PersonCard({
     super.key,
     required this.summary,
@@ -36,8 +38,9 @@ class PersonCard extends StatelessWidget {
   final VoidCallback onDelete;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currencySymbol = ref.watch(currencySymbolProvider);
     final person = summary.person;
     final isArchived = person.status == PersonStatus.archived;
 
@@ -104,7 +107,10 @@ class PersonCard extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  CurrencyFormatter.format(summary.balance),
+                                  CurrencyFormatter.format(
+                                    summary.balance,
+                                    symbol: currencySymbol,
+                                  ),
                                   style: theme.textTheme.titleLarge?.copyWith(
                                     color: balanceColor,
                                     fontWeight: FontWeight.w700,

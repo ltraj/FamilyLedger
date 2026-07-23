@@ -133,7 +133,7 @@ void main() {
         final database = await createTestDatabase();
         addTearDown(database.close);
 
-        expect(AppConstants.databaseSchemaVersion, 6);
+        expect(AppConstants.databaseSchemaVersion, 7);
         expect(database.schemaVersion, AppConstants.databaseSchemaVersion);
         expect(database.migration.onUpgrade, isNotNull);
       },
@@ -145,7 +145,10 @@ void main() {
 
       final rowsAfterCreate = await database.select(database.appInfo).get();
       expect(rowsAfterCreate, hasLength(1));
-      expect(rowsAfterCreate.first.databaseVersion, 6);
+      expect(
+        rowsAfterCreate.first.databaseVersion,
+        AppConstants.databaseSchemaVersion,
+      );
       expect(rowsAfterCreate.first.appVersion, AppConstants.appVersion);
       expect(rowsAfterCreate.first.installationId, hasLength(36));
 
@@ -199,6 +202,14 @@ void main() {
               .replaceFirst(', "display_order" INTEGER NOT NULL DEFAULT 0', '');
         }
 
+        // Likewise for the v7 migration's automatic-backup columns on
+        // settings — a genuine v1 file must not already have them.
+        if (name == 'settings') {
+          sql = sql
+              .replaceFirst(', "auto_backup_interval_days" INTEGER NULL', '')
+              .replaceFirst(', "auto_backup_directory" TEXT NULL', '');
+        }
+
         createStatements.add(sql);
       }
       await schemaSource.close();
@@ -237,6 +248,22 @@ void main() {
       final settingsRows = await upgraded.select(upgraded.settings).get();
       expect(settingsRows, hasLength(1));
       expect(settingsRows.first.currency, 'INR');
+
+      // The v7 migration must have added the automatic-backup columns,
+      // both null: an upgraded installation keeps automatic backup OFF
+      // until the user explicitly enables it.
+      final settingsColumns = await upgraded
+          .customSelect('PRAGMA table_info(settings)')
+          .get();
+      final settingsColumnNames = settingsColumns
+          .map((row) => row.data['name'] as String)
+          .toSet();
+      expect(
+        settingsColumnNames,
+        containsAll(['auto_backup_interval_days', 'auto_backup_directory']),
+      );
+      expect(settingsRows.first.autoBackupIntervalDays, isNull);
+      expect(settingsRows.first.autoBackupDirectory, isNull);
 
       // The v3 migration must have rebuilt the transactions table with the
       // stricter foreign key: a category can no longer be deleted while
