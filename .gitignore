@@ -37,6 +37,11 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Gradle build cache/daemon state (was accidentally committed — see CHANGELOG)
+.gradle/
+android/.gradle/
+android/.kotlin/
+
 # Local configuration
 local.properties
 .flutter-sdk/
